@@ -1,15 +1,30 @@
-# Use a base image that supports systemd, for example, Ubuntu
+# Use the latest Ubuntu LTS release as the base image
 FROM ubuntu:20.04
 
-# Install necessary packages
-RUN apt-get update && \
-apt-get install -y shellinabox && \
-apt-get install -y systemd && \
-apt-get clean && \
-rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN echo 'root:root' | chpasswd
-# Expose the web-based terminal port
-EXPOSE 4200
+# Set the environment variables to avoid user interaction during installation
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=UTC
 
-# Start shellinabox
-CMD ["/usr/bin/shellinaboxd", "-t", "-s", "/:LOGIN"]
+# Update packages and install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    curl \
+    wget \
+    git \
+    unzip \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Additional setup commands if needed
+# For example, you can install Node.js:
+# RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+# RUN apt-get install -y nodejs
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy your application files into the container (if needed)
+# COPY . /app
+
+# Start your application or any other services
+CMD ["/bin/bash"]
